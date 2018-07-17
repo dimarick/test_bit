@@ -1,0 +1,20 @@
+app_login:
+    path: /login
+    defaults: { _controller: App\Controller\SecurityController::loginAction }
+
+app_logout:
+    path: /logout
+    defaults: { _controller: App\Controller\SecurityController::logoutAction }
+
+app_profile:
+    path: /profile
+    defaults: { _controller: App\Controller\UserController::profileAction }
+
+app_payout:
+    path: /payout
+    defaults: { _controller: App\Controller\UserController::payoutAction }
+#    methods: [POST]
+
+app_home:
+    path: /
+    defaults: { _controller: App\Controller\UserController::homeAction }
