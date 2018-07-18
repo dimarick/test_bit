@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Kernel;
+use App\Routes;
 use App\Service\Exception\BadCsrfHttpException;
 use App\Service\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -64,7 +65,7 @@ class UserController
         $this->kernel->getAuthorization()->denyUnlessAuthenticated();
 
         if (!$request->isMethod(Request::METHOD_POST)) {
-            return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));
+            return new RedirectResponse($this->kernel->getRouter()->generate(Routes::PROFILE));
         }
 
         if (!$this->kernel->getCsrfTokenManager()->isValid('payout', $request)) {
@@ -86,6 +87,6 @@ class UserController
             throw new BadRequestHttpException('Cannot pay');
         }
 
-        return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));
+        return new RedirectResponse($this->kernel->getRouter()->generate(Routes::PROFILE));
     }
 }

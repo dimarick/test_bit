@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Kernel;
+use App\Routes;
 use App\Service\Exception\BadCsrfHttpException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +33,7 @@ class SecurityController
     public function loginAction(Request $request): Response
     {
         if ($this->kernel->getAuthenticator()->isAuthenticated($request)) {
-            return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));
+            return new RedirectResponse($this->kernel->getRouter()->generate(Routes::PROFILE));
         }
 
         if ($request->isMethod(Request::METHOD_POST)) {
@@ -46,7 +47,7 @@ class SecurityController
                 return new Response('Failed to login. Unknown username or password. Try again');
             }
 
-            return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));
+            return new RedirectResponse($this->kernel->getRouter()->generate(Routes::PROFILE));
         }
 
         return new Response($this->kernel->getTemplating()->renderTemplate('Security/login.php', [
@@ -68,6 +69,6 @@ class SecurityController
             $request->getSession()->invalidate();
         }
 
-        return new RedirectResponse($this->kernel->getRouter()->generate('app_home'));
+        return new RedirectResponse($this->kernel->getRouter()->generate(Routes::HOME));
     }
 }
