@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Security;
 
-use App\Service\Exception\HttpException;
+use App\Service\Exception\AccessDeniedHttpException;
 
 class Authorization
 {
@@ -29,7 +29,7 @@ class Authorization
         $user = $this->formAuthenticator->getUser();
 
         if ($user === null) {
-            throw new HttpException('Access denied', 403);
+            throw new AccessDeniedHttpException();
         }
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Kernel;
-use App\Repository\UserRepository;
-use App\Service\Exception\HttpException;
+use App\Service\Exception\BadCsrfHttpException;
+use App\Service\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,6 +57,7 @@ class UserController
      * @return Response
      * @throws \App\Service\Exception\HttpException
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Throwable
      */
     public function payoutAction(Request $request): Response
     {
@@ -66,26 +67,23 @@ class UserController
             return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));
         }
 
-        if (!$this->kernel->getCsrfTokenManager()->isValid('payout', $request->get('_token'), $request)) {
-            throw new HttpException('Hacking attempt', 400);
+        if (!$this->kernel->getCsrfTokenManager()->isValid('payout', $request)) {
+            throw new BadCsrfHttpException();
         }
 
-        /** @sum UserRepository $userRepository */
-        $userRepository = $this->kernel->getRepositoryRegistry()->getRepository(UserRepository::class);
-
-        $sum = $request->get('sum');
+        $sum = (float)$request->get('sum', 0.0);
 
         if (round($sum, 2) <= 0) {
-            throw new HttpException('Please set valid positive value', 400);
+            throw new BadRequestHttpException('Please set valid positive value');
         }
 
-        $result = $userRepository->processPayout(
+        $result = $this->kernel->getPayoutManager()->processPayout(
             $this->kernel->getAuthenticator()->getUser(),
-            (float)$sum
+            $sum
         );
 
-        if ($result === null) {
-            throw new HttpException('Cannot pay', 400);
+        if ($result === false) {
+            throw new BadRequestHttpException('Cannot pay');
         }
 
         return new RedirectResponse($this->kernel->getRouter()->generate('app_profile'));

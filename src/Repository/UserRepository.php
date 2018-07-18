@@ -44,28 +44,13 @@ class UserRepository implements RepositoryInterface
     {
         $connection = $this->registry->getConnection();
 
-        $connection->beginTransaction();
-        try {
-            $affected = $connection->executeUpdate('UPDATE users SET balance = balance - :sum WHERE id = :ownerId AND balance >= :sum', [
-                ':ownerId' => $user->getId(),
-                ':sum' => $sum
-            ]);
+        $affected = $connection->executeUpdate('UPDATE users SET balance = balance - :sum WHERE id = :ownerId AND balance >= :sum', [
+            ':ownerId' => $user->getId(),
+            ':sum' => $sum
+        ]);
 
-            if ($affected === 0) {
-                $connection->rollBack();
-
-                return false;
-            }
-
-            /** @var PayoutRepository $payoutsRepository */
-            $payoutsRepository = $this->registry->getRepository(PayoutRepository::class);
-            $payoutsRepository->registerPayout($user, $sum);
-
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
-
-            throw $e;
+        if ($affected === 0) {
+            return false;
         }
 
         return true;

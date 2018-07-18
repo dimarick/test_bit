@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Controller\ExceptionController;
+use App\Service\PayoutManager;
 use App\Service\RepositoryRegistry;
 use App\Service\Security\Authorization;
 use App\Service\Security\CsrfTokenManager;
@@ -72,6 +73,11 @@ class Kernel
      */
     private $templating;
 
+    /**
+     * @var PayoutManager
+     */
+    private $payoutManager;
+
     public function boot(): void
     {
         $configLocator = new FileLocator([__DIR__ . '/../config']);
@@ -87,6 +93,7 @@ class Kernel
         $this->authorization = new Authorization($this->authenticator);
         $this->csrfTokenManager = new CsrfTokenManager();
         $this->templating = new Templating($this, new FileLocator([__DIR__ . '/../templates']));
+        $this->payoutManager = new PayoutManager($this->repositoryRegistry);
     }
 
     /**
@@ -210,5 +217,13 @@ class Kernel
     public function getTemplating(): Templating
     {
         return $this->templating;
+    }
+
+    /**
+     * @return PayoutManager
+     */
+    public function getPayoutManager(): PayoutManager
+    {
+        return $this->payoutManager;
     }
 }

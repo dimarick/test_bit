@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Kernel;
-use App\Service\Exception\HttpException;
+use App\Service\Exception\BadCsrfHttpException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,8 +36,8 @@ class SecurityController
         }
 
         if ($request->isMethod(Request::METHOD_POST)) {
-            if (!$this->kernel->getCsrfTokenManager()->isValid('login', $request->get('_token'), $request)) {
-                throw new HttpException('Hacking attempt', 400);
+            if (!$this->kernel->getCsrfTokenManager()->isValid('login', $request)) {
+                throw new BadCsrfHttpException();
             }
 
             $user = $this->kernel->getAuthenticator()->authenticateForm($request);
@@ -60,8 +60,8 @@ class SecurityController
      */
     public function logoutAction(Request $request): Response
     {
-        if (!$this->kernel->getCsrfTokenManager()->isValid('logout', $request->get('_token'), $request)) {
-            throw new HttpException('Hacking attempt', 400);
+        if (!$this->kernel->getCsrfTokenManager()->isValid('logout', $request)) {
+            throw new BadCsrfHttpException();
         }
 
         if ($this->kernel->getAuthenticator()->isAuthenticated($request)) {

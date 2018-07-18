@@ -24,12 +24,13 @@ class CsrfTokenManager
 
     /**
      * @param string $name
-     * @param string $token
      * @param Request $request
      * @return bool
      */
-    public function isValid(string $name, ?string $token, Request $request): bool
+    public function isValid(string $name, Request $request): bool
     {
+        $token = $request->get('_token');
+
         if ($token === null) {
             return false;
         }
